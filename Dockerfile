@@ -98,6 +98,9 @@ RUN \
 #    echo '"FontSmoothingType"=dword:00000002' >> fontsmoothing.reg && \
 #    regedit /s fontsmoothing.reg && \
 
+    echo "Uninstalling mono..." && \
+    env WINEPREFIX=/opt/mkvcleaver wine64 uninstaller --remove '{E45D8920-A758-4088-B6C6-31DBB276992E}' && \
+
     echo "Waiting for wineserver to terminate..." && \
     while ps | grep -v grep | grep -qw wineserver; do sleep 1; done && \
 
@@ -149,7 +152,6 @@ RUN \
     mkdir /opt/mkvtoolnix && \
     mv mkvtoolnix/mkvextract.exe /opt/mkvtoolnix/ && \
     mv mkvtoolnix/mkvmerge.exe /opt/mkvtoolnix/ && \
-    mv mkvtoolnix/locale /opt/mkvtoolnix/ && \
     # Cleanup.
     del-pkg build-dependencies && \
     rm -rf /tmp/* /tmp/.[!.]*
