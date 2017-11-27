@@ -27,42 +27,6 @@ RUN \
         wine-libs@edge \
         wine@edge
 
-# Initialize wine.
-#RUN \
-#    echo "Initializing wine..." && \
-#    # Start a X server.
-#    echo "Starting the X server..." && \
-#    (/usr/bin/Xvfb :0 &) && \
-#    while ! xdpyinfo -display :0 > /dev/null 2>&1; do sleep 1; done && \
-#    # Run wineboot.
-#    env DISPLAY=:0 WINEPREFIX=/opt/mkvcleaver wineboot && \
-#    # Adjust Windows drives.
-#    ln -s /storage /opt/mkvcleaver/dosdevices/d: && \
-#    # Adjust some Windows directories.
-#    rm /opt/mkvcleaver/drive_c/users/root/"My Documents" && \
-#    rm /opt/mkvcleaver/drive_c/users/root/"My Music" && \
-#    rm /opt/mkvcleaver/drive_c/users/root/"My Pictures" && \
-#    rm /opt/mkvcleaver/drive_c/users/root/"My Videos" && \
-#    mkdir /opt/mkvcleaver/drive_c/users/root/"My Documents" && \
-#    mkdir /opt/mkvcleaver/drive_c/users/root/"My Music" && \
-#    mkdir /opt/mkvcleaver/drive_c/users/root/"My Pictures" && \
-#    mkdir /opt/mkvcleaver/drive_c/users/root/"My Videos" && \
-#    rm -r /opt/mkvcleaver/drive_c/users/root/Temp && \
-#    ln -s /config/temp /opt/mkvcleaver/drive_c/users/root/Temp && \
-#    # Wait for wineserver to terminate.
-#    echo "Waiting for wineserver to terminate..." && \
-#    while ps | grep -v grep | grep -qw wineserver; do sleep 1; done && \
-#    # Stop the X server.
-#    echo "Stopping the X server..." && \
-#    kill $(cat /tmp/.X0-lock) && \
-#    while ps | grep -v grep | grep -qw Xvfb; do sleep 1; done && \
-#    # Rename Windows user.
-#    mv /opt/mkvcleaver/drive_c/users/root /opt/mkvcleaver/drive_c/users/app && \
-#    sed-patch 's|\\root\\|\\app\\|g' /opt/mkvcleaver/user.reg  && \
-#    sed-patch 's|\\root\\|\\app\\|g' /opt/mkvcleaver/userdef.reg && \
-#    # Cleanup.
-#    rm -rf /tmp/*
-
 # Install MKVCleaver
 RUN \
     add-pkg --virtual build-dependencies curl procps grep && \
@@ -88,16 +52,6 @@ RUN \
     while [ ! -f /opt/mkvcleaver/mkvcleaver_db.sqlite ]; do sleep 1; done && \
     pkill MKVCleaver.exe && \
 
-#    echo "Enabling font smoothing..." && \
-#    echo 'REGEDIT4' >> fontsmoothing.reg && \
-#    echo >> fontsmoothing.reg && \
-#    echo '[HKEY_CURRENT_USER\Control Panel\Desktop]' >> fontsmoothing.reg && \
-#    echo '"FontSmoothing"="2"' >> fontsmoothing.reg && \
-#    echo '"FontSmoothingGamma"=dword:00000578' >> fontsmoothing.reg && \
-#    echo '"FontSmoothingOrientation"=dword:00000001' >> fontsmoothing.reg && \
-#    echo '"FontSmoothingType"=dword:00000002' >> fontsmoothing.reg && \
-#    regedit /s fontsmoothing.reg && \
-
     echo "Uninstalling mono..." && \
     env WINEPREFIX=/opt/mkvcleaver wine64 uninstaller --remove '{E45D8920-A758-4088-B6C6-31DBB276992E}' && \
 
@@ -107,9 +61,6 @@ RUN \
     echo "Stopping X server..." && \
     kill $(cat /tmp/.X0-lock) && \
     while ps | grep -v grep | grep -qw Xvfb; do sleep 1; done && \
-
-    # Adjust Windows drives.
-#    ln -s /storage /opt/mkvcleaver/dosdevices/d: && \
 
     # Adjust some Windows directories.
     rm /opt/mkvcleaver/drive_c/users/root/"My Documents" && \
@@ -180,7 +131,6 @@ ENV APP_NAME="MKVCleaver" \
 # Define mountable directories.
 VOLUME ["/config"]
 VOLUME ["/storage"]
-#VOLUME ["/output"]
 
 # Metadata.
 LABEL \
