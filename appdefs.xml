@@ -1,0 +1,46 @@
+<!--
+Definitions for MKVCleaver docker container.
+
+This file is used as data source to generate README.md and unRAID template files
+from Jinja2 templates.
+-->
+<defs>
+  <app>
+    <id>12</id>
+    <gui>True</gui>
+    <friendly_name>MKVCleaver</friendly_name>
+    <name>{{ defs.app.friendly_name|lower|replace(' ', '-') }}</name>
+    <project>
+      <description>MKVCleaver is a tool for batch extraction of data from MKV files</description>
+      <url>https://blogs.sapib.ca/apps/mkvcleaver/</url>
+    </project>
+    <unraid>
+      <support_url>https://forums.lime-technology.com/topic/61701-support-mkvcleaver/</support_url>
+      <category>MediaApp:Video</category>
+    </unraid>
+    <container>
+      <rough_download_size>100MB</rough_download_size>
+      <storage_permissions>rw</storage_permissions>
+    </container>
+    <!-- Extra stuff to be added to the documentation. -->
+    <documentation/>
+    <!-- Changelog of the application. -->
+    <history>
+      <release>
+        <version>1.0.0</version>
+        <date>2017-11-27</date>
+        <change>Initial release.</change>
+      </release>
+    </history>
+  </app>
+  <container>
+    <!-- Environment variables -->
+    <environment_variables/>
+    <!-- Volumes -->
+    <volumes/>
+    <!-- Network ports -->
+    <ports/>
+    <!-- Devices -->
+    <devices/>
+  </container>
+</defs>
