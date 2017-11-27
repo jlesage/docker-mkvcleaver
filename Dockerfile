@@ -15,7 +15,7 @@ ARG MKVCLEAVER_VERSION=0702
 # Define software download URLs.
 ARG WINEMONO_URL=http://dl.winehq.org/wine/wine-mono/${WINEMONO_VERSION}/wine-mono-${WINEMONO_VERSION}.msi
 ARG MKVTOOLNIX_URL=https://mkvtoolnix.download/windows/releases/${MKVTOOLNIX_VERSION}/mkvtoolnix-64-bit-${MKVTOOLNIX_VERSION}.7z
-ARG MKVCLEAVER_URL=https://www.videohelp.com/download/MKVCleaver_x64_v${MKVCLEAVER_VERSION}.exe?r=PMTPBTQk
+ARG MKVCLEAVER_URL=https://www.videohelp.com/download/MKVCleaver_x64_v${MKVCLEAVER_VERSION}.exe
 # Define working directory.
 WORKDIR /tmp
 
@@ -65,7 +65,7 @@ RUN \
 
 # Install MKVCleaver
 RUN \
-    add-pkg --virtual build-dependencies curl procps && \
+    add-pkg --virtual build-dependencies curl procps grep && \
 
     echo "Dowloading wine mono..." && \
     mkdir -p /usr/share/wine/mono/ && \
@@ -73,7 +73,8 @@ RUN \
 
     echo "Downloading MKVCleaver..." && \
     mkdir /opt/mkvcleaver && \
-    curl -# -L -o /opt/mkvcleaver/MKVCleaver.exe ${MKVCLEAVER_URL} && \
+    DOWNLOAD_UID="$(curl -s -L ${MKVCLEAVER_URL} | egrep -o 'https://[^ ]+MKVCleaver_x64_v[0-9]+\.exe\?r=[a-zA-Z0-9]+' | uniq | cut -d'=' -f2)" && \
+    curl -# -L -o /opt/mkvcleaver/MKVCleaver.exe ${MKVCLEAVER_URL}?r=${DOWNLOAD_UID} && \
     chmod 644 /opt/mkvcleaver/MKVCleaver.exe && \
 
     echo "Starting X server..." && \
