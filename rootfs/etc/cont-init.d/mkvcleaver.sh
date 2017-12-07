@@ -13,7 +13,7 @@ mkdir -p /config/temp
 
 # Wine requires the WINEPREFIX directory to be owned by the user running the
 # Windows app.
-chown $USER_ID:$GROUP_ID /opt/mkvcleaver
+chown $USER_ID:$GROUP_ID "$WINEPREFIX"
 
 # Take ownership of the config directory.
 chown -R $USER_ID:$GROUP_ID /config
