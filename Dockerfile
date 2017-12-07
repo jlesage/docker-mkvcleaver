@@ -8,14 +8,13 @@
 FROM jlesage/baseimage-gui:alpine-3.6-v3.1.3
 
 # Define software versions.
-ARG WINEMONO_VERSION=4.6.4
 ARG MKVTOOLNIX_VERSION=17.0.0
 ARG MKVCLEAVER_VERSION=0702
 
 # Define software download URLs.
-ARG WINEMONO_URL=http://dl.winehq.org/wine/wine-mono/${WINEMONO_VERSION}/wine-mono-${WINEMONO_VERSION}.msi
 ARG MKVTOOLNIX_URL=https://mkvtoolnix.download/windows/releases/${MKVTOOLNIX_VERSION}/mkvtoolnix-64-bit-${MKVTOOLNIX_VERSION}.7z
 ARG MKVCLEAVER_URL=https://www.videohelp.com/download/MKVCleaver_x64_v${MKVCLEAVER_VERSION}.exe
+
 # Define working directory.
 WORKDIR /tmp
 
@@ -31,10 +30,6 @@ RUN \
 RUN \
     add-pkg --virtual build-dependencies curl procps grep && \
 
-    echo "Dowloading wine mono..." && \
-    mkdir -p /usr/share/wine/mono/ && \
-    curl -# -L -o /usr/share/wine/mono/wine-mono-${WINEMONO_VERSION}.msi ${WINEMONO_URL} && \
-
     echo "Downloading MKVCleaver..." && \
     mkdir /opt/mkvcleaver && \
     DOWNLOAD_UID="$(curl -s -L ${MKVCLEAVER_URL} | egrep -o 'https://[^ ]+MKVCleaver_x64_v[0-9]+\.exe\?r=[a-zA-Z0-9]+' | uniq | cut -d'=' -f2)" && \
@@ -48,12 +43,11 @@ RUN \
     echo "Installing MKVcleaver..." && \
     # Since we are using the portable version, we just need to launch the
     # executable and wait until it extracts its files.
-    (env WINEPREFIX=/opt/mkvcleaver wine64 /opt/mkvcleaver/MKVCleaver.exe &) && \
+    # NOTE: WINEDLLOVERRIDES is needed to avoid prompts about installing
+    # mono and greko.
+    (env WINEPREFIX=/opt/mkvcleaver WINEDLLOVERRIDES="mscoree,mshtml=" wine64 /opt/mkvcleaver/MKVCleaver.exe &) && \
     while [ ! -f /opt/mkvcleaver/mkvcleaver_db.sqlite ]; do sleep 1; done && \
     pkill MKVCleaver.exe && \
-
-    echo "Uninstalling mono..." && \
-    env WINEPREFIX=/opt/mkvcleaver wine64 uninstaller --remove '{E45D8920-A758-4088-B6C6-31DBB276992E}' && \
 
     echo "Waiting for wineserver to terminate..." && \
     while ps | grep -v grep | grep -qw wineserver; do sleep 1; done && \
@@ -92,7 +86,6 @@ RUN \
 
     # Cleanup.
     del-pkg build-dependencies && \
-    rm -r /usr/share/wine/mono && \
     rm -rf /tmp/* /tmp/.[!.]*
 
 # Install MKVToolNix.
