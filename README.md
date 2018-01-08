@@ -128,7 +128,7 @@ docker stop mkvcleaver
 ```
   3. Remove the container:
 ```
-docker stop mkvcleaver
+docker rm mkvcleaver
 ```
   4. Start the container using the `docker run` command.
 
