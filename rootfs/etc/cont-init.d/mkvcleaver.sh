@@ -15,7 +15,7 @@ mkdir -p /config/temp
 # Windows app.
 chown $USER_ID:$GROUP_ID "$WINEPREFIX"
 
-# Take ownership of the config directory.
-chown -R $USER_ID:$GROUP_ID /config
+# Take ownership of the config directory content.
+chown -R $USER_ID:$GROUP_ID /config/*
 
 # vim: set ft=sh :
