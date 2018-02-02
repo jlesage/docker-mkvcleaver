@@ -1,5 +1,5 @@
 # Docker container for MKVCleaver
-[![Docker Automated build](https://img.shields.io/docker/automated/jlesage/mkvcleaver.svg)](https://hub.docker.com/r/jlesage/mkvcleaver/) [![](https://images.microbadger.com/badges/image/jlesage/mkvcleaver.svg)](http://microbadger.com/#/images/jlesage/mkvcleaver "Get your own image badge on microbadger.com") [![Build Status](https://travis-ci.org/jlesage/docker-mkvcleaver.svg?branch=master)](https://travis-ci.org/jlesage/docker-mkvcleaver) [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://paypal.me/JocelynLeSage)
+[![Docker Automated build](https://img.shields.io/docker/automated/jlesage/mkvcleaver.svg)](https://hub.docker.com/r/jlesage/mkvcleaver/) [![Docker Image](https://images.microbadger.com/badges/image/jlesage/mkvcleaver.svg)](http://microbadger.com/#/images/jlesage/mkvcleaver) [![Build Status](https://travis-ci.org/jlesage/docker-mkvcleaver.svg?branch=master)](https://travis-ci.org/jlesage/docker-mkvcleaver) [![GitHub Release](https://img.shields.io/github/release/jlesage/docker-mkvcleaver.svg)](https://github.com/jlesage/docker-mkvcleaver/releases/latest) [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://paypal.me/JocelynLeSage)
 
 This is a Docker container for MKVCleaver.
 
@@ -99,6 +99,7 @@ container cannot be changed, but you are free to use any port on the host side.
 | 5900 | Optional | Port used to access the application's GUI via the VNC protocol.  Optional if no VNC client is used. |
 
 ## Docker Compose File
+
 Here is an example of a `docker-compose.yml` file that can be used with
 [Docker Compose](https://docs.docker.com/compose/overview/).
 
