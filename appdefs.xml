@@ -15,7 +15,7 @@ from Jinja2 templates.
       <url>https://blogs.sapib.ca/apps/mkvcleaver/</url>
     </project>
     <unraid>
-      <support_url>https://forums.lime-technology.com/topic/61701-support-mkvcleaver/</support_url>
+      <support_url>https://forums.unraid.net/topic/61701-support-mkvcleaver/</support_url>
       <category>MediaApp:Video</category>
     </unraid>
     <container>
