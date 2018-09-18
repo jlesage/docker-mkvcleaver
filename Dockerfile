@@ -20,11 +20,9 @@ WORKDIR /tmp
 
 # Install Wine.
 RUN \
-    echo '@edge http://dl-cdn.alpinelinux.org/alpine/edge/community' >> /etc/apk/repositories && \
     add-pkg \
-        ncurses-libs \
-        wine-libs@edge \
-        wine@edge
+        wine-libs \
+        wine
 
 # Install MKVCleaver
 RUN \
