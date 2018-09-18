@@ -9,7 +9,7 @@ FROM jlesage/baseimage-gui:alpine-3.8-v3.5.1
 
 # Define software versions.
 ARG MKVTOOLNIX_VERSION=17.0.0
-ARG MKVCLEAVER_VERSION=0702
+ARG MKVCLEAVER_VERSION=0800
 
 # Define software download URLs.
 ARG MKVTOOLNIX_URL=https://mkvtoolnix.download/windows/releases/${MKVTOOLNIX_VERSION}/mkvtoolnix-64-bit-${MKVTOOLNIX_VERSION}.7z
