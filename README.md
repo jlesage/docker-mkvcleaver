@@ -1,7 +1,7 @@
 # Docker container for MKVCleaver
 [![Docker Automated build](https://img.shields.io/docker/automated/jlesage/mkvcleaver.svg)](https://hub.docker.com/r/jlesage/mkvcleaver/) [![Docker Image](https://images.microbadger.com/badges/image/jlesage/mkvcleaver.svg)](http://microbadger.com/#/images/jlesage/mkvcleaver) [![Build Status](https://travis-ci.org/jlesage/docker-mkvcleaver.svg?branch=master)](https://travis-ci.org/jlesage/docker-mkvcleaver) [![GitHub Release](https://img.shields.io/github/release/jlesage/docker-mkvcleaver.svg)](https://github.com/jlesage/docker-mkvcleaver/releases/latest) [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://paypal.me/JocelynLeSage/0usd)
 
-This is a Docker container for MKVCleaver.
+This is a Docker container for [MKVCleaver](https://blogs.sapib.ca/apps/mkvcleaver/).
 
 The GUI of the application is accessed through a modern web browser (no installation or configuration needed on client side) or via any VNC client.
 
