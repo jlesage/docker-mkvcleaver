@@ -161,6 +161,7 @@ ports are part of the example.
 version: '3'
 services:
   mkvcleaver:
+    image: jlesage/mkvcleaver
     build: .
     ports:
       - "5800:5800"
