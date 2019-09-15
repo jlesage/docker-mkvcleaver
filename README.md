@@ -1,5 +1,5 @@
 # Docker container for MKVCleaver
-[![Docker Image Size](https://img.shields.io/microbadger/image-size/jlesage/mkvcleaver)](http://microbadger.com/#/images/jlesage/mkvcleaver) [![Build Status](https://travis-ci.org/jlesage/docker-mkvcleaver.svg?branch=master)](https://travis-ci.org/jlesage/docker-mkvcleaver) [![GitHub Release](https://img.shields.io/github/release/jlesage/docker-mkvcleaver.svg)](https://github.com/jlesage/docker-mkvcleaver/releases/latest) [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://paypal.me/JocelynLeSage/0usd)
+[![Docker Image Size](https://img.shields.io/microbadger/image-size/jlesage/mkvcleaver)](http://microbadger.com/#/images/jlesage/mkvcleaver) [![Build Status](https://drone.le-sage.com/api/badges/jlesage/docker-mkvcleaver/status.svg)](https://drone.le-sage.com/jlesage/docker-mkvcleaver) [![GitHub Release](https://img.shields.io/github/release/jlesage/docker-mkvcleaver.svg)](https://github.com/jlesage/docker-mkvcleaver/releases/latest) [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://paypal.me/JocelynLeSage/0usd)
 
 This is a Docker container for [MKVCleaver](https://blogs.sapib.ca/apps/mkvcleaver/).
 
