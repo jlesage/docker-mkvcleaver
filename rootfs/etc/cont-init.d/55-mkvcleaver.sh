@@ -16,6 +16,12 @@ done
 # Windows app.
 chown $USER_ID:$GROUP_ID "$WINEPREFIX"
 
+# Enable CJK font in Wine if needed.
+if is-bool-val-true "${ENABLE_CJK_FONT:-0}"; then
+    su-exec app wine64 regedit /defaults/chn_fonts.reg
+    su-exec app wineserver -w
+fi
+
 # Handle dark mode.
 if is-bool-val-true "${DARK_MODE:-0}"; then
     su-exec app wine64 regedit /defaults/wine-breeze-dark.reg
