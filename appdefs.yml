@@ -23,6 +23,31 @@ app:
     support_url: https://forums.unraid.net/topic/61701-support-mkvcleaver/
     category: "MediaApp:Video"
   documentation:
+    sections:
+      - title: Troubleshooting
+        level: 2
+        content: |-
+          MKVCleaver is a Windows application running under Wine.  This brings some quirks
+          that are not seen with usual applications.
+      - title: Remote Resize
+        level: 3
+        content: |-
+          When using remote resizing, the application's window size won't adjust beyond
+          the size defined by `DISPLAY_WIDTH` and `DISPLAY_HEIGHT`.  Make sure to adjust
+          these variable accordingly.
+      - title: CJK Font
+        level: 3
+        content: |-
+          To properly display of Chinese/Japanese/Korean characters, the `ENABLE_CJK_FONT`
+          environment variable is not needed.  Instead, the `LANG` environment variable
+          should be set accordingly.  See the [Environment Variables](#environment-variables)
+          section for more details.
+      - title: Dark Mode
+        level: 3
+        content: |-
+          When dark mode is enabled, some labels have blue text that are hard to read.
+          This color seems to be hard-coded by MKVCleaver itself and cannot be adjusted
+          with the theme.
   changelog:
     - version: 1.3.0
       date: 2019-04-26
