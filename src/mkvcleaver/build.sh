@@ -87,18 +87,6 @@ for F in user.reg system.reg; do
     ln -s /tmp/"$F" /opt/mkvcleaver/"$F"
 done
 
-# Adjust some Windows directories.
-#rm /opt/mkvcleaver/drive_c/users/app/"My Documents"
-#rm /opt/mkvcleaver/drive_c/users/app/"My Music"
-#rm /opt/mkvcleaver/drive_c/users/app/"My Pictures"
-#rm /opt/mkvcleaver/drive_c/users/app/"My Videos"
-#mkdir /opt/mkvcleaver/drive_c/users/root/"My Documents"
-#mkdir /opt/mkvcleaver/drive_c/users/root/"My Music"
-#mkdir /opt/mkvcleaver/drive_c/users/root/"My Pictures"
-#mkdir /opt/mkvcleaver/drive_c/users/root/"My Videos"
-#rm -r /opt/mkvcleaver/drive_c/users/app/Temp
-#ln -s /config/temp /opt/mkvcleaver/drive_c/users/app/Temp
-
 #
 # Install MKVToolNix.
 #
