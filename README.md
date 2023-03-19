@@ -43,7 +43,6 @@ lot of functionality.
    * [Shell Access](#shell-access)
    * [Troubleshooting](#troubleshooting)
       * [Remote Resize](#remote-resize)
-      * [CJK Font](#cjk-font)
       * [Dark Mode](#dark-mode)
    * [Support or Contact](#support-or-contact)
 
@@ -527,13 +526,6 @@ that are not seen with usual applications.
 When using remote resizing, the application's window size won't adjust beyond
 the size defined by `DISPLAY_WIDTH` and `DISPLAY_HEIGHT`.  Make sure to adjust
 these variable accordingly.
-
-### CJK Font
-
-To properly display of Chinese/Japanese/Korean characters, the `ENABLE_CJK_FONT`
-environment variable is not needed.  Instead, the `LANG` environment variable
-should be set accordingly.  See the [Environment Variables](#environment-variables)
-section for more details.
 
 ### Dark Mode
 
