@@ -1,5 +1,10 @@
 # Docker container for MKVCleaver
-[![Docker Image Size](https://img.shields.io/docker/image-size/jlesage/mkvcleaver/latest)](https://hub.docker.com/r/jlesage/mkvcleaver/tags) [![Build Status](https://github.com/jlesage/docker-mkvcleaver/actions/workflows/build-image.yml/badge.svg?branch=master)](https://github.com/jlesage/docker-mkvcleaver/actions/workflows/build-image.yml) [![GitHub Release](https://img.shields.io/github/release/jlesage/docker-mkvcleaver.svg)](https://github.com/jlesage/docker-mkvcleaver/releases/latest) [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://paypal.me/JocelynLeSage)
+[![Release](https://img.shields.io/github/release/jlesage/docker-mkvcleaver.svg?logo=github&style=for-the-badge)](https://github.com/jlesage/docker-mkvcleaver/releases/latest)
+[![Docker Image Size](https://img.shields.io/docker/image-size/jlesage/mkvcleaver/latest?logo=docker&style=for-the-badge)](https://hub.docker.com/r/jlesage/mkvcleaver/tags)
+[![Docker Pulls](https://img.shields.io/docker/pulls/jlesage/mkvcleaver?label=Pulls&logo=docker&style=for-the-badge)](https://hub.docker.com/r/jlesage/mkvcleaver)
+[![Docker Stars](https://img.shields.io/docker/stars/jlesage/mkvcleaver?label=Stars&logo=docker&style=for-the-badge)](https://hub.docker.com/r/jlesage/mkvcleaver)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/jlesage/docker-mkvcleaver/build-image.yml?logo=github&branch=master&style=for-the-badge)](https://github.com/jlesage/docker-mkvcleaver/actions/workflows/build-image.yml)
+[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg?style=for-the-badge)](https://paypal.me/JocelynLeSage)
 
 This project implements a Docker container for [MKVCleaver](https://blogs.sapib.ca/apps/mkvcleaver/).
 
