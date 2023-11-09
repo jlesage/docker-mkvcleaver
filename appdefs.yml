@@ -12,6 +12,7 @@ app:
   name: mkvcleaver
   friendly_name: MKVCleaver
   gui_type: x11
+  base_os: alpine
   project:
     description: |-
       MKVcleaver is a GUI (Graphical User Interface) for mkvtoolnix, designed to extract
