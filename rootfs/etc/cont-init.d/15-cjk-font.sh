@@ -6,7 +6,7 @@
 #         - Font file is pre-installed under the WINEPREFIX.
 #         - Font is installed by applying settings in registry.
 # NOTE: Setting the `LANG` environment variable is also enough to properly.
-#       displa CJK characters.
+#       display CJK characters.
 #
 exit 0
 
