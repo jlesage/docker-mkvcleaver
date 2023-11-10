@@ -550,7 +550,7 @@ that are not seen with usual applications.
 
 When using remote resizing, the application's window size won't adjust beyond
 the size defined by `DISPLAY_WIDTH` and `DISPLAY_HEIGHT`.  Make sure to adjust
-these variable accordingly.
+these variables accordingly.
 
 ### Dark Mode
 
