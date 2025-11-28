@@ -12,6 +12,8 @@ This is a Docker container for [MKVCleaver](https://blogs.sapib.ca/apps/mkvcleav
 The graphical user interface (GUI) of the application can be accessed through a
 modern web browser, requiring no installation or configuration on the client
 
+> This Docker container is entirely unofficial and not made by the creators of MKVCleaver.
+
 ---
 
 [![MKVCleaver logo](https://images.weserv.nl/?url=raw.githubusercontent.com/jlesage/docker-templates/master/jlesage/images/mkvcleaver-icon.png&w=110)](https://blogs.sapib.ca/apps/mkvcleaver/)[![MKVCleaver](https://images.placeholders.dev/?width=320&height=110&fontFamily=monospace&fontWeight=400&fontSize=52&text=MKVCleaver&bgColor=rgba(0,0,0,0.0)&textColor=rgba(121,121,121,1))](https://blogs.sapib.ca/apps/mkvcleaver/)
