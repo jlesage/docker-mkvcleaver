@@ -23,7 +23,7 @@ COPY src/mkvcleaver /build
 RUN /build/build.sh "$MKVCLEAVER_URL" "$MKVTOOLNIX_URL"
 
 # Pull base image.
-FROM jlesage/baseimage-gui:alpine-3.17-v4.10.0
+FROM jlesage/baseimage-gui:alpine-3.17-v4.10.1
 
 ARG MKVCLEAVER_VERSION
 ARG DOCKER_IMAGE_VERSION
