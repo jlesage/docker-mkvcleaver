@@ -549,19 +549,10 @@ server {
 	server_name mkvcleaver.domain.tld;
 
 	location / {
-	        proxy_pass http://docker-mkvcleaver;
+		proxy_pass http://docker-mkvcleaver;
 	}
 
 	location /websockify {
-		proxy_pass http://docker-mkvcleaver;
-		proxy_http_version 1.1;
-		proxy_set_header Upgrade $http_upgrade;
-		proxy_set_header Connection $connection_upgrade;
-		proxy_read_timeout 86400;
-	}
-
-	# Needed when audio support is enabled.
-	location /websockify-audio {
 		proxy_pass http://docker-mkvcleaver;
 		proxy_http_version 1.1;
 		proxy_set_header Upgrade $http_upgrade;
@@ -604,16 +595,8 @@ server {
 		# Uncomment the following line if your Nginx server runs on a port that
 		# differs from the one seen by external clients.
 		#port_in_redirect off;
-		location /mkvcleaver/websockify {
-			proxy_pass http://docker-mkvcleaver/websockify;
-			proxy_http_version 1.1;
-			proxy_set_header Upgrade $http_upgrade;
-			proxy_set_header Connection $connection_upgrade;
-			proxy_read_timeout 86400;
-		}
-		# Needed when audio support is enabled.
-		location /mkvcleaver/websockify-audio {
-			proxy_pass http://docker-mkvcleaver/websockify-audio;
+		location ~ ^/mkvcleaver/(websockify(-.*)?) {
+                        proxy_pass http://docker-mkvcleaver/$1;
 			proxy_http_version 1.1;
 			proxy_set_header Upgrade $http_upgrade;
 			proxy_set_header Connection $connection_upgrade;
