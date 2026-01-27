@@ -28,13 +28,13 @@ app:
       - title: Troubleshooting
         level: 2
         content: |-
-          MKVCleaver is a Windows application running under Wine.  This brings some quirks
+          MKVCleaver is a Windows application running under Wine. This brings some quirks
           that are not seen with usual applications.
       - title: Remote Resize
         level: 3
         content: |-
           When using remote resizing, the application's window size won't adjust beyond
-          the size defined by `DISPLAY_WIDTH` and `DISPLAY_HEIGHT`.  Make sure to adjust
+          the size defined by `DISPLAY_WIDTH` and `DISPLAY_HEIGHT`. Make sure to adjust
           these variables accordingly.
       - title: Dark Mode
         level: 3
@@ -180,7 +180,7 @@ app:
     - version: 1.2.0
       date: 2018-09-18
       changes:
-        - 'Upgraded  to version 0.8.0.0.'
+        - 'Upgraded to version 0.8.0.0.'
         - 'Now using baseimage v3.5.1, which is based on Alpine Linux 3.8 and brings the following changes:'
         - '2:Updated installed packages to get latest security fixes.'
     - version: 1.1.3
