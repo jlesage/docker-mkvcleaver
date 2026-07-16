@@ -3,13 +3,13 @@
 set -e # Exit immediately if a command exits with a non-zero status.
 set -u # Treat unset variables as an error.
 
-# Set same default compilation flags as abuild.
 log() {
     echo ">>> $*"
 }
 
 MKVCLEAVER_URL="${1:-}"
 MKVTOOLNIX_URL="${2:-}"
+MEDIAINFO_URL="${3:-}"
 
 if [ -z "$MKVCLEAVER_URL" ]; then
     log "ERROR: MKVCleaver URL missing."
@@ -21,36 +21,66 @@ if [ -z "$MKVTOOLNIX_URL" ]; then
     exit 1
 fi
 
+if [ -z "$MEDIAINFO_URL" ]; then
+    log "ERROR: MediaInfo URL missing."
+    exit 1
+fi
+
 #
 # Install required packages.
 #
 apk --no-cache add \
     curl \
-    p7zip \
+    7zip \
     shadow \
     su-exec \
     wine \
     xvfb-run \
+    cabextract \
+    wget \
 
 #
 # Install MKVCleaver.
 #
 
+if command -v wine >/dev/null; then
+    export WINE=wine
+else
+    export WINE=wine64
+fi
 export WINEPREFIX=/opt/mkvcleaver
 export WINEDLLOVERRIDES="mscoree,mshtml="
 export XDG_CACHE_HOME=/tmp/xdg_cache
+export HOME=/tmp
 
 log "Creating Wine environment..."
 useradd --system app
 mkdir /opt/mkvcleaver
 chown app:app /opt/mkvcleaver
-su-exec app wineboot
+su-exec app wineboot -i
+su-exec app winecfg -v win7
 su-exec app wineserver -w
-chown -R root:root /opt/mkvcleaver
+
+log "Adjusting Wine environment..."
+
+# MKVCleaver is an AutoIt app with fixed-pixel control sizes. Wine's default
+# font metrics are wider than real Windows fonts, which causes truncated
+# labels and dialogs that look too small for their content — especially
+# noticeable since the 0.8.0.2 GUI refresh. Install only the fonts the app
+# actually uses (Tahoma/MS Shell Dlg, Arial, Times New Roman).
+log "Installing Windows fonts..."
+su-exec app winetricks -q tahoma arial times
+su-exec app wineserver -w
+
+log "Enabling font smoothing..."
+su-exec app winetricks -q fontsmooth=rgb
+su-exec app wineserver -w
+
+# Cleanup log file created by Winetricks.
+rm -f "$WINEPREFIX"/winetricks.log
 
 log "Downloading MKVCleaver..."
-DOWNLOAD_UID="$(curl -s -L ${MKVCLEAVER_URL} | egrep -o 'https://[^ ]+MKVCleaver_x64_v[0-9]+\.exe\?r=[a-zA-Z0-9]+' | uniq | cut -d'=' -f2)"
-curl -# -L -f -o /opt/mkvcleaver/MKVCleaver.exe ${MKVCLEAVER_URL}?r=${DOWNLOAD_UID}
+curl -# -L -f -o /opt/mkvcleaver/MKVCleaver.exe ${MKVCLEAVER_URL}
 chmod 644 /opt/mkvcleaver/MKVCleaver.exe
 
 log "Installing MKVCleaver..."
@@ -58,28 +88,24 @@ log "Installing MKVCleaver..."
 # executable and wait until it extracts its files.
 # NOTE: WINEDLLOVERRIDES is needed to avoid prompts about installing
 # mono and greko.
-#(env WINEPREFIX=/opt/mkvcleaver WINEDLLOVERRIDES="mscoree,mshtml=" wine64 /opt/mkvcleaver/MKVCleaver.exe &)
-xvfb-run wine64 /opt/mkvcleaver/MKVCleaver.exe &
-while [ ! -f /opt/mkvcleaver/mkvcleaver_db.sqlite ]; do sleep 1; done
+su-exec app xvfb-run "$WINE" /opt/mkvcleaver/MKVCleaver.exe &
+while [ ! -f /opt/mkvcleaver/mkvcleaver.db ]; do
+    sleep 5
+    log "Waiting for installation to terminate..."
+done
 sleep 5
 pkill MKVCleaver.exe
-wineserver -w
+su-exec app wineserver -w
 
-log "Adjusting Wine environment..."
-
-# Enable font smoothing.
-wine64 reg add 'HKCU\Control Panel\Desktop' /v FontSmoothing /t REG_SZ /d 2 /f
-wine64 reg add 'HKCU\Control Panel\Desktop' /v FontSmoothingGamma /t REG_DWORD /d 0x578 /f
-wine64 reg add 'HKCU\Control Panel\Desktop' /v FontSmoothingOrientation /t REG_DWORD /d 1 /f
-wine64 reg add 'HKCU\Control Panel\Desktop' /v FontSmoothingType /t REG_DWORD /d 2 /f
-wineserver -w
+# We are done, change ownership of the Wine prefix.
+chown -R root:root "$WINEPREFIX"
 
 # Save some stuff outside the container.
-rm /opt/mkvcleaver/mkvcleaver_db.*
+rm /opt/mkvcleaver/mkvcleaver.db*
 ln -s /config/custom.ini /opt/mkvcleaver/custom.ini
-ln -s /config/mkvcleaver_db.sqlite /opt/mkvcleaver/mkvcleaver_db.sqlite
-ln -s /config/mkvcleaver_db.sqlite-shm /opt/mkvcleaver/mkvcleaver_db.sqlite-shm
-ln -s /config/mkvcleaver_db.sqlite-wal /opt/mkvcleaver/mkvcleaver_db.sqlite-wal
+ln -s /config/mkvcleaver.db /opt/mkvcleaver/mkvcleaver.db
+ln -s /config/mkvcleaver.db-shm /opt/mkvcleaver/mkvcleaver.db-shm
+ln -s /config/mkvcleaver.db-wal /opt/mkvcleaver/mkvcleaver.db-wal
 
 mkdir /defaults
 for F in user.reg system.reg; do
@@ -95,7 +121,19 @@ log "Downloading MKVToolNix..."
 curl -# -L -f -o /tmp/mkvtoolnix.7z ${MKVTOOLNIX_URL}
 
 log "Installing MKVToolNix..."
-7za -o/tmp x /tmp/mkvtoolnix.7z
+7z -o/tmp x /tmp/mkvtoolnix.7z
 mkdir /opt/mkvtoolnix/
 cp -v /tmp/mkvtoolnix/mkvextract.exe /opt/mkvtoolnix/
 cp -v /tmp/mkvtoolnix/mkvmerge.exe /opt/mkvtoolnix/
+
+#
+# Install MediaInfo.
+#
+
+log "Downloading MediaInfo..."
+curl -# -L -f -o /tmp/mediainfo.7z ${MEDIAINFO_URL}
+
+log "Installing MediaInfo..."
+mkdir /tmp/mediainfo
+7z -o/tmp/mediainfo x /tmp/mediainfo.7z
+cp -v /tmp/mediainfo/MediaInfo.dll /opt/mkvcleaver/

@@ -8,19 +8,34 @@
 ARG DOCKER_IMAGE_VERSION=
 
 # Define software versions.
-ARG MKVCLEAVER_VERSION=0800
+ARG MKVCLEAVER_VERSION=0802
 ARG MKVTOOLNIX_VERSION=33.1.0
+ARG MEDIAINFO_VERSION=26.01
+ARG WINETRICKS_VERSION=20260125
 
 # Define software download URLs.
-ARG MKVCLEAVER_URL=https://www.videohelp.com/download/MKVCleaver_x64_v${MKVCLEAVER_VERSION}.exe
+ARG MKVCLEAVER_URL=https://blogs.sapib.ca/apps/download/d47a70b2339c4809edd842ebc45d2efc/MKVCleaver_x64_v0802.exe
 ARG MKVTOOLNIX_URL=https://mkvtoolnix.download/windows/releases/${MKVTOOLNIX_VERSION}/mkvtoolnix-64-bit-${MKVTOOLNIX_VERSION}.7z
+ARG MEDIAINFO_URL=https://mediaarea.net/download/binary/libmediainfo0/${MEDIAINFO_VERSION}/MediaInfo_DLL_${MEDIAINFO_VERSION}_Windows_x64_WithoutInstaller.7z
+ARG WINETRICKS_URL=https://github.com/Winetricks/winetricks/archive/refs/tags/${WINETRICKS_VERSION}.tar.gz
+
+# Build winetricks.
+FROM alpine:3.18 AS winetricks
+ARG WINETRICKS_URL
+RUN \
+    apk --no-cache add curl make && \
+    mkdir /tmp/winetricks && \
+    curl -# -L -f "$WINETRICKS_URL" | tar xz --strip 1 -C /tmp/winetricks && \
+    DESTDIR=/tmp/winetricks-install make -C /tmp/winetricks install
 
 # Build MKVCleaver.
-FROM alpine:3.17 AS mkvcleaver
+FROM alpine:3.18 AS mkvcleaver
 ARG MKVCLEAVER_URL
 ARG MKVTOOLNIX_URL
+ARG MEDIAINFO_URL
+COPY --from=winetricks /tmp/winetricks-install /
 COPY src/mkvcleaver /build
-RUN /build/build.sh "$MKVCLEAVER_URL" "$MKVTOOLNIX_URL"
+RUN /build/build.sh "$MKVCLEAVER_URL" "$MKVTOOLNIX_URL" "$MEDIAINFO_URL"
 
 # Pull base image.
 FROM jlesage/baseimage-gui:alpine-3.18-v4.12.6
