@@ -1,0 +1,234 @@
+--- "a/64 bit/Portable/Internal_Functions.au3"	2025-11-18 16:37:46.000000000 +0000
++++ "b/64 bit/Portable/Internal_Functions.au3"	2026-07-17 02:52:22.804935661 +0000
+@@ -440,123 +440,71 @@
+ 								_GUICtrlTreeView_Expand($file_list, 0, False)
+ 						EndSwitch
+ 					EndIf
+-				Case $TVN_ITEMCHANGEDA, $TVN_ITEMCHANGEDW ;item selected in a trreview
++				Case $TVN_ITEMCHANGEDA, $TVN_ITEMCHANGEDW ; item changed (may not fire under Wine)
++					; Primary selection handling for Wine is in While_Loop1 via GUIGetMsg +
++					; GetChecked. Keep a GetChecked-based path here for native Windows.
+ 					$tNMHDR = DllStructCreate($tagNMTVITEMCHANGE, $lParam)
+-					_SQLite_QuerySingleRow($db, "select file from sessions where handle='" & DllStructGetData($tNMHDR, "hItem") & "';", $aQuery)
++					Local $hFileItem = DllStructGetData($tNMHDR, "hItem")
++					_SQLite_QuerySingleRow($db, "select file from sessions where handle='" & $hFileItem & "';", $aQuery)
+ 					If $aQuery[0] <> "" Then _GUICtrlStatusBar_SetText($statusbar, $aQuery[0])
+ 
+-					If BitXOR(DllStructGetData($tNMHDR, "StateNew"), $TVIS_SELECTED) <> DllStructGetData($tNMHDR, "StateOld") Then
+-						If StringInStr(_GUICtrlTreeView_GetText($file_list, DllStructGetData($tNMHDR, "hItem")), "Chapters") Then
+-							_GUICtrlTreeView_SetChecked($file_list, DllStructGetData($tNMHDR, "hItem"), False)
+-							Return True
+-						Else
+-							_SQLite_QuerySingleRow($db, "select count(rowid) from child_handles where handle=" & __SQL_Escape(DllStructGetData($tNMHDR, "hItem")) & ";", $aQuery)
+-							If $aQuery[0] > 0 Then
+-								_SQLite_Exec($db, "update child_handles set selected=" & __SQL_Escape(_GUICtrlTreeView_GetChecked($file_list, DllStructGetData($tNMHDR, "hItem"))) & " where handle=" & __SQL_Escape(DllStructGetData($tNMHDR, "hItem")) & ";")
+-								Switch BitXOR(DllStructGetData($tNMHDR, "StateNew"), $TVIS_SELECTED)
+-									Case $TVIS_CHECKED
+-										GUICtrlSetState($go, $GUI_ENABLE)
+-										$go_go = 1
+-									Case $TVIS_UNCHECKED
+-										_SQLite_QuerySingleRow($db, "select count(selected) from child_handles where selected='True';", $aQuery)
+-										If $aQuery[0] = 0 Then
+-											_SQLite_QuerySingleRow($db, "select count(selected) from batch_item_handles where selected='True';", $aQuery)
+-											If $aQuery[0] = 0 Or ($aQuery[0] = 1 And _GUICtrlTreeView_GetChecked($tracklist, $timecodes) = True) Then
+-												GUICtrlSetState($go, $GUI_DISABLE)
+-												$go_go = 0
+-											EndIf
+-										EndIf
+-								EndSwitch
+-							EndIf
+-
+-							_SQLite_QuerySingleRow($db, "select count(rowid) from sessions where handle=" & __SQL_Escape(DllStructGetData($tNMHDR, "hItem")) & ";", $aQuery)
+-							If $aQuery[0] > 0 Then
+-								If _IsPressed($VK_SHIFT) Then
+-									;(de)select all tracks of the same type
+-									Local $hSelected = _GUICtrlTreeView_GetSelection($file_list)
+-									Local $bChecked = _GUICtrlTreeView_GetChecked($file_list, $hSelected)
+-									Local $aBatchItemType = StringSplit(_GUICtrlTreeView_GetText($file_list, $hSelected), " ", 1)
+-
+-									Local $hItem = _GUICtrlTreeView_GetFirstItem($file_list)
+-									Do
+-										Local $aNextItemType = StringSplit(_GUICtrlTreeView_GetText($file_list, $hItem), " ", 1)
+-										If $aNextItemType[1] == $aBatchItemType[1] Then
+-											_GUICtrlTreeView_SetChecked($file_list, $hItem, $bChecked)
+-											If _SQLite_Exec($db, "update sessions set selected='" & $bChecked & "' where handle='" & $hItem & "';") <> $SQLITE_OK Then
+-												MsgBox(16, "DB Error", "Unable to save data to the database" & @CRLF & @CRLF & "Please restart MKVcleaver" & @CRLF & @CRLF & _SQLite_ErrMsg(), Default, $GUI)
+-												SetError(1)
+-												ExitLoop
+-											EndIf
+-										EndIf
+-										$hItem = _GUICtrlTreeView_GetNextSibling($file_list, $hItem)
+-									Until $hItem = 0
+-								EndIf
++					If StringInStr(_GUICtrlTreeView_GetText($file_list, $hFileItem), "Chapters") Then
++						_GUICtrlTreeView_SetChecked($file_list, $hFileItem, False)
++						Return True
++					EndIf
++
++					Local $bFileChecked = _GUICtrlTreeView_GetChecked($file_list, $hFileItem)
++					_SQLite_QuerySingleRow($db, "select count(rowid) from child_handles where handle=" & __SQL_Escape($hFileItem) & ";", $aQuery)
++					If $aQuery[0] > 0 Then
++						_SQLite_Exec($db, "update child_handles set selected=" & __SQL_Escape($bFileChecked) & " where handle=" & __SQL_Escape($hFileItem) & ";")
++						__Sync_Go_Button()
++					EndIf
+ 
+-								_SQLite_Exec($db, "update sessions set selected=" & __SQL_Escape(_GUICtrlTreeView_GetChecked($file_list, DllStructGetData($tNMHDR, "hItem"))) & " where handle = " & __SQL_Escape(DllStructGetData($tNMHDR, "hItem")) & ";")
+-								Dim $aFlags = [BitXOR(DllStructGetData($tNMHDR, "StateNew"), $TVIS_SELECTED, $TVIS_EXPANDED, $TVIS_EXPANDEDONCE), BitXOR(DllStructGetData($tNMHDR, "StateNew"), $TVIS_SELECTED, $TVIS_EXPANDEDONCE), BitXOR(DllStructGetData($tNMHDR, "StateNew"), $TVIS_SELECTED)]
+-								Select
+-									Case $aFlags[0] = $TVIS_CHECKED Or $aFlags[1] = $TVIS_CHECKED Or $aFlags[2] = $TVIS_CHECKED
+-										GUICtrlSetState($removemkvs, $GUI_ENABLE)
+-									Case $aFlags[0] = $TVIS_UNCHECKED Or $aFlags[1] = $TVIS_UNCHECKED Or $aFlags[2] = $TVIS_UNCHECKED
+-										_SQLite_QuerySingleRow($db, "select count(selected) from sessions where selected='True';", $aQuery)
+-										If $aQuery[0] = 0 Then
+-											GUICtrlSetState($removemkvs, $GUI_DISABLE)
+-										EndIf
+-								EndSelect
+-							EndIf
++					_SQLite_QuerySingleRow($db, "select count(rowid) from sessions where handle=" & __SQL_Escape($hFileItem) & ";", $aQuery)
++					If $aQuery[0] > 0 Then
++						If _IsPressed($VK_SHIFT) Then
++							Local $hFileSel = _GUICtrlTreeView_GetSelection($file_list)
++							Local $bFileSel = _GUICtrlTreeView_GetChecked($file_list, $hFileSel)
++							Local $aFileType = StringSplit(_GUICtrlTreeView_GetText($file_list, $hFileSel), " ", 1)
++							Local $hFileWalk = _GUICtrlTreeView_GetFirstItem($file_list)
++							Do
++								Local $aFileNext = StringSplit(_GUICtrlTreeView_GetText($file_list, $hFileWalk), " ", 1)
++								If $aFileNext[0] >= 1 And $aFileType[0] >= 1 And $aFileNext[1] == $aFileType[1] Then
++									_GUICtrlTreeView_SetChecked($file_list, $hFileWalk, $bFileSel)
++									_SQLite_Exec($db, "update sessions set selected='" & $bFileSel & "' where handle='" & $hFileWalk & "';")
++								EndIf
++								$hFileWalk = _GUICtrlTreeView_GetNextSibling($file_list, $hFileWalk)
++							Until $hFileWalk = 0
+ 						EndIf
++						_SQLite_Exec($db, "update sessions set selected=" & __SQL_Escape($bFileChecked) & " where handle=" & __SQL_Escape($hFileItem) & ";")
++						__Sync_Remove_Button()
+ 					EndIf
+ 			EndSwitch
+ 
+ 		Case $tracklist
+ 			Switch $iCode
+-				Case $TVN_ITEMCHANGEDA, $TVN_ITEMCHANGEDW ;item selected in a trreview
++				Case $TVN_ITEMCHANGEDA, $TVN_ITEMCHANGEDW ; item changed (may not fire under Wine)
+ 					$tNMHDR = DllStructCreate($tagNMTVITEMCHANGE, $lParam)
+-					If BitXOR(DllStructGetData($tNMHDR, "StateNew"), $TVIS_SELECTED) <> DllStructGetData($tNMHDR, "StateOld") Then
+-						_SQLite_QuerySingleRow($db, "select count(rowid) from batch_item_handles where handle=" & __SQL_Escape(DllStructGetData($tNMHDR, "hItem")) & ";", $aQuery)
+-						If $aQuery[0] > 0 Then
+-							_SQLite_Exec($db, "update batch_item_handles set selected=" & __SQL_Escape(_GUICtrlTreeView_GetChecked($tracklist, DllStructGetData($tNMHDR, "hItem"))) & " where handle = " & __SQL_Escape(DllStructGetData($tNMHDR, "hItem")) & ";")
+-
+-							If _IsPressed($VK_SHIFT) Then
+-								;(de)select all tracks of the same type
+-								Local $hSelected = _GUICtrlTreeView_GetSelection($tracklist)
+-								Local $bChecked = _GUICtrlTreeView_GetChecked($tracklist, $hSelected)
+-								Local $aBatchItemType = StringSplit(_GUICtrlTreeView_GetText($tracklist, $hSelected), " ", 1)
+-
+-								Local $hItem = _GUICtrlTreeView_GetFirstItem($tracklist)
+-								Do
+-									Local $aNextItemType = StringSplit(_GUICtrlTreeView_GetText($tracklist, $hItem), " ", 1)
+-									If $aNextItemType[1] == $aBatchItemType[1] Then
+-										_GUICtrlTreeView_SetChecked($tracklist, $hItem, $bChecked)
+-										If _SQLite_Exec($db, "update batch_item_handles set selected='" & $bChecked & "' where handle='" & $hItem & "';") <> $SQLITE_OK Then
+-											MsgBox(16, "DB Error", "Unable to save data to the database" & @CRLF & @CRLF & "Please restart MKVcleaver" & @CRLF & @CRLF & _SQLite_ErrMsg(), Default, $GUI)
+-											SetError(1)
+-											ExitLoop
+-										EndIf
+-									EndIf
+-									$hItem = _GUICtrlTreeView_GetNextSibling($tracklist, $hItem)
+-								Until $hItem = 0
+-							EndIf
+-
+-							Switch BitXOR(DllStructGetData($tNMHDR, "StateNew"), $TVIS_SELECTED)
+-								Case $TVIS_CHECKED
+-									_SQLite_QuerySingleRow($db, "select count(rowid) from batch_item_handles where selected='True';", $aQuery)
+-									If $aQuery[0] > 1 Or ($aQuery[0] = 1 And _GUICtrlTreeView_GetChecked($tracklist, $timecodes) = False) Then
+-										_SQLite_QuerySingleRow($db, "select count(selected) from child_handles where selected='True';", $aQuery)
+-										GUICtrlSetState($go, $GUI_ENABLE)
+-										$go_go = 1
+-									EndIf
+-								Case $TVIS_UNCHECKED
+-									_SQLite_QuerySingleRow($db, "select count(rowid) from batch_item_handles where selected='True';", $aQuery)
+-									If $aQuery[0] = 0 Or ($aQuery[0] = 1 And _GUICtrlTreeView_GetChecked($tracklist, $timecodes) = True) Then
+-										_SQLite_QuerySingleRow($db, "select count(selected) from child_handles where selected='True';", $aQuery)
+-										If $aQuery[0] = 0 Then
+-											GUICtrlSetState($go, $GUI_DISABLE)
+-											$go_go = 0
+-										EndIf
+-									EndIf
+-							EndSwitch
++					Local $hBatchItem = DllStructGetData($tNMHDR, "hItem")
++					_SQLite_QuerySingleRow($db, "select count(rowid) from batch_item_handles where handle=" & __SQL_Escape($hBatchItem) & ";", $aQuery)
++					If $aQuery[0] > 0 Then
++						Local $bBatchChecked = _GUICtrlTreeView_GetChecked($tracklist, $hBatchItem)
++						_SQLite_Exec($db, "update batch_item_handles set selected=" & __SQL_Escape($bBatchChecked) & " where handle=" & __SQL_Escape($hBatchItem) & ";")
++						If _IsPressed($VK_SHIFT) Then
++							Local $hBatchSel = _GUICtrlTreeView_GetSelection($tracklist)
++							Local $bBatchSel = _GUICtrlTreeView_GetChecked($tracklist, $hBatchSel)
++							Local $aBatchType = StringSplit(_GUICtrlTreeView_GetText($tracklist, $hBatchSel), " ", 1)
++							Local $hBatchWalk = _GUICtrlTreeView_GetFirstItem($tracklist)
++							Do
++								Local $aBatchNext = StringSplit(_GUICtrlTreeView_GetText($tracklist, $hBatchWalk), " ", 1)
++								If $aBatchNext[0] >= 1 And $aBatchType[0] >= 1 And $aBatchNext[1] == $aBatchType[1] Then
++									_GUICtrlTreeView_SetChecked($tracklist, $hBatchWalk, $bBatchSel)
++									_SQLite_Exec($db, "update batch_item_handles set selected='" & $bBatchSel & "' where handle='" & $hBatchWalk & "';")
++								EndIf
++								$hBatchWalk = _GUICtrlTreeView_GetNextSibling($tracklist, $hBatchWalk)
++							Until $hBatchWalk = 0
+ 						EndIf
++						__Sync_Go_Button()
+ 					EndIf
+ 			EndSwitch
+ 
+@@ -949,6 +897,54 @@
+ 	$check_selected = 1
+ EndFunc   ;==>__TrackCount_Update
+ 
++; Enable/disable Extract based on DB selection. Uses GetChecked only for the
++; Timecodes-only edge case (Wine-friendly; does not rely on TVN_ITEMCHANGED).
++Func __Sync_Go_Button()
++	Local $iBatch = 0, $iChild = 0
++	_SQLite_QuerySingleRow($db, "select count(rowid) from batch_item_handles where selected='True';", $query_result)
++	$iBatch = Number($query_result[0])
++	_SQLite_QuerySingleRow($db, "select count(rowid) from child_handles where selected='True';", $query_result2)
++	$iChild = Number($query_result2[0])
++	If $iBatch = 0 And $iChild = 0 Then
++		$go_go = 0
++		GUICtrlSetState($go, $GUI_DISABLE)
++	ElseIf $iBatch = 1 And $iChild = 0 And _GUICtrlTreeView_GetChecked($tracklist, $timecodes) = True Then
++		; Selecting only Timecodes is not enough to start extraction.
++		$go_go = 0
++		GUICtrlSetState($go, $GUI_DISABLE)
++	Else
++		$go_go = 1
++		GUICtrlSetState($go, $GUI_ENABLE)
++	EndIf
++EndFunc   ;==>__Sync_Go_Button
++
++Func __Sync_Remove_Button()
++	_SQLite_QuerySingleRow($db, "select count(rowid) from sessions where selected='True';", $query_result)
++	If Number($query_result[0]) = 0 Then
++		GUICtrlSetState($removemkvs, $GUI_DISABLE)
++	Else
++		GUICtrlSetState($removemkvs, $GUI_ENABLE)
++	EndIf
++EndFunc   ;==>__Sync_Remove_Button
++
++; Apply the same checked state to all tree items whose label shares the same
++; first word (e.g. "Video", "Audio"). Used for Shift+click multi-select.
++Func __TreeView_CheckSameType($hTree, $iCtrlId, $sTable, $sHandleCol = "handle")
++	Local $hSelected = GUICtrlGetHandle($iCtrlId)
++	Local $bChecked = _GUICtrlTreeView_GetChecked($hTree, $iCtrlId)
++	Local $aType = StringSplit(_GUICtrlTreeView_GetText($hTree, $iCtrlId), " ", 1)
++	If $aType[0] < 1 Then Return
++	Local $hItem = _GUICtrlTreeView_GetFirstItem($hTree)
++	Do
++		Local $aNext = StringSplit(_GUICtrlTreeView_GetText($hTree, $hItem), " ", 1)
++		If $aNext[0] >= 1 And $aNext[1] == $aType[1] Then
++			_GUICtrlTreeView_SetChecked($hTree, $hItem, $bChecked)
++			_SQLite_Exec($db, "update " & $sTable & " set selected='" & $bChecked & "' where " & $sHandleCol & "='" & $hItem & "';")
++		EndIf
++		$hItem = _GUICtrlTreeView_GetNextSibling($hTree, $hItem)
++	Until $hItem = 0
++EndFunc   ;==>__TreeView_CheckSameType
++
+ Func __SaveFile_Make($itemID, $childID)
+ 	Local $fn_custom_formula = IniRead($ini_file, "Files", "custom_filename", "")
+ 	Local $fn_custom_formula_orig = $fn_custom_formula

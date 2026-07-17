@@ -1,0 +1,29 @@
+--- a/64 bit/Portable/While_Loop1.au3	2026-07-17 13:20:42.191309666 +0000
++++ b/64 bit/Portable/While_Loop1.au3	2026-07-17 13:20:42.191385941 +0000
+@@ -66,7 +66,12 @@
+ 			GUICtrlCreateLabel("License : GPL v3", 98, 71, 148, 17, $WS_GROUP)
+ 			$logo = GUICtrlCreatePic("", 17, 23, 71, 71)
+ 			;_ResourceSetImageToCtrl($logo, "LOGO", $RT_BITMAP)
+-			_Resource_SetToCtrlID($logo, 'LOGO', $RT_BITMAP, @AutoItExe, False)
++			If @Compiled Then
++				_Resource_SetToCtrlID($logo, 'LOGO', $RT_BITMAP, @AutoItExe, False)
++			Else
++				; LOGO is only embedded in the compiled EXE; load from Common when running from source.
++				GUICtrlSetImage($logo, @ScriptDir & "\..\..\Common\mkv.bmp")
++			EndIf
+ 			GUICtrlCreateGroup("", -99, -99, 1, 1)
+ 			GUICtrlCreateGroup("", -99, -99, 1, 1)
+ 			GUICtrlCreateLabel("Author : Ilia Bakhmoutski", 17, 101, 130, 19)
+@@ -91,7 +96,11 @@
+ 			GUICtrlSetCursor(-1, 0)
+ 			$hl = GUICtrlCreatePic("", 17, 175, 240, 2)
+ 			;_ResourceSetImageToCtrl($hl, "LINE", $RT_BITMAP)
+-			_Resource_SetToCtrlID($hl, 'LINE', $RT_BITMAP, @AutoItExe, True)
++			If @Compiled Then
++				_Resource_SetToCtrlID($hl, 'LINE', $RT_BITMAP, @AutoItExe, True)
++			Else
++				GUICtrlSetImage($hl, @ScriptDir & "\..\..\Common\line.bmp")
++			EndIf
+ 			GUICtrlCreateLabel("Additional Tools Used : ", 17, 182, 123, 19)
+ 			GUICtrlSetFont(-1, 9, 400, 0, "Times New Roman")
+ 			$mediainfo_link = GUICtrlCreateLabel("MediaInfoDLL", 139, 182, 78, 19)

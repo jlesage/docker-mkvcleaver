@@ -1,0 +1,27 @@
+# Docker/Wine: set $working_dir to Z:\config so runtime data (custom.ini,
+# mkvcleaver.db*, mkv_cmd.json, DebugLog.txt) lives on the container /config
+# volume (Z: maps to /). Helpers (MediaInfo.dll, etc.) stay in @ScriptDir.
+# Also delete mkv_cmd.json from $working_dir on exit.
+#
+--- a/64 bit/Portable/Variables.au3	2025-11-14 16:39:22.000000000 +0000
++++ b/64 bit/Portable/Variables.au3	2026-07-17 13:50:17.430802194 +0000
+@@ -17,7 +17,7 @@
+ 
+ #include-once
+ 
+-Global $working_dir = @ScriptDir
++Global $working_dir = "Z:\config"
+ Global $ini_file = $working_dir & "\custom.ini"
+ 
+ ;convert ini file to UTF-16 LE with BOM
+--- a/64 bit/Portable/Internal_Functions.au3	2026-07-17 13:50:17.423590368 +0000
++++ b/64 bit/Portable/Internal_Functions.au3	2026-07-17 13:50:17.431095382 +0000
+@@ -1736,7 +1736,7 @@
+ 				IniRead($ini_file, "GUI", "filters", 1))
+ 	EndIf
+ 
+-	FileDelete(@ScriptDir & "\mkv_cmd.json")
++	FileDelete($working_dir & "\mkv_cmd.json")
+ 
+ 	_GUICtrlStatusBar_Destroy($statusbar)
+ 	;below code causes flicker on GUI close

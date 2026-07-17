@@ -1,0 +1,109 @@
+--- "a/64 bit/Portable/While_Loop1.au3"	2025-11-19 16:56:30.000000000 +0000
++++ "b/64 bit/Portable/While_Loop1.au3"	2026-07-17 02:52:22.802809367 +0000
+@@ -778,30 +778,86 @@
+ 				WinMove("MKVcleaver " & $version, "", $gui_size[0], $gui_size[1], $gui_size[2], 642)
+ 			EndIf
+ 		Case Else
++			; After track list rebuild / session restore, refresh button states from DB.
+ 			If $check_selected = 1 Then
+-				_SQLite_QuerySingleRow($db, "select count(rowid) from batch_item_handles where selected='True';", $query_result)
+-				_SQLite_QuerySingleRow($db, "select count(rowid) from child_handles where selected='True';", $query_result2)
+-				If $query_result[0] = 0 And $query_result2[0] = 0 Then
+-					$go_go = 0
+-				ElseIf $query_result[0] > 0 Or $query_result2[0] > 0 Then
+-					If $query_result[0] = 1 And _GUICtrlTreeView_GetChecked($tracklist, $timecodes) = True Then
+-						;do nothing
++				__Sync_Go_Button()
++				__Sync_Remove_Button()
++				$check_selected = 0
++			EndIf
++
++			; Wine-friendly checkbox handling (ported from 0.8.0.0).
++			; GUIGetMsg returns the treeview item control ID when a checkbox is
++			; toggled; we read the real state with GetChecked instead of relying
++			; on TVN_ITEMCHANGED / StateNew (broken under Wine in 0.8.0.2).
++			If $nMsg[0] > 0 Then
++				; Parent file row in the left tree → Remove button
++				If _SQLite_QuerySingleRow($db, "select rowid from sessions where item_handle='" & $nMsg[0] & "';", $query_result) = $SQLITE_OK Then
++					If $query_result[0] > 0 Then
++						$state = _GUICtrlTreeView_GetChecked($file_list, $nMsg[0])
++						_SQLite_QuerySingleRow($db, "select selected from sessions where item_handle='" & $nMsg[0] & "';", $query)
++						Select
++							Case $state = True And $query[0] = "True"
++								ContinueLoop
++							Case $state = False And $query[0] = "False"
++								ContinueLoop
++							Case $state = False And $query[0] = ""
++								ContinueLoop
++						EndSelect
++						If _IsPressed($VK_SHIFT) Then
++							__TreeView_CheckSameType($file_list, $nMsg[0], "sessions", "handle")
++						Else
++							_SQLite_Exec($db, "update sessions set selected='" & $state & "' where item_handle='" & $nMsg[0] & "';")
++						EndIf
++						__Sync_Remove_Button()
++						ContinueLoop
++					EndIf
++				EndIf
++
++				; Batch track type on the right → Extract button
++				If _SQLite_QuerySingleRow($db, "select rowid from batch_item_handles where item_handle='" & $nMsg[0] & "';", $query_result) = $SQLITE_OK Then
++					If $query_result[0] > 0 Then
++						$state = _GUICtrlTreeView_GetChecked($tracklist, $nMsg[0])
++						_SQLite_QuerySingleRow($db, "select selected from batch_item_handles where item_handle='" & $nMsg[0] & "';", $query)
++						Select
++							Case $state = True And $query[0] = "True"
++								ContinueLoop
++							Case $state = False And $query[0] = "False"
++								ContinueLoop
++							Case $state = False And $query[0] = ""
++								ContinueLoop
++						EndSelect
++						If _IsPressed($VK_SHIFT) Then
++							__TreeView_CheckSameType($tracklist, $nMsg[0], "batch_item_handles", "handle")
++						Else
++							_SQLite_Exec($db, "update batch_item_handles set selected='" & $state & "' where item_handle='" & $nMsg[0] & "';")
++						EndIf
++						__Sync_Go_Button()
++						ContinueLoop
+ 					EndIf
+-					$go_go = 1
+ 				EndIf
+-				Switch $go_go
+-					Case 0
+-						GUICtrlSetState($go, $GUI_DISABLE)
+-					Case 1
+-						GUICtrlSetState($go, $GUI_ENABLE)
+-				EndSwitch
+-				_SQLite_QuerySingleRow($db, "select count(rowid) from sessions where selected='True';", $query_result)
+-				If $query_result[0] = 0 Then
+-					GUICtrlSetState($removemkvs, $GUI_DISABLE)
+-				ElseIf $query_result[0] > 0 Then
+-					GUICtrlSetState($removemkvs, $GUI_ENABLE)
++
++				; Child track under a file → Extract button
++				If _SQLite_QuerySingleRow($db, "select rowid from child_handles where handle='" & $nMsg_handle & "';", $query_result) = $SQLITE_OK Then
++					If $query_result[0] > 0 Then
++						If StringInStr(_GUICtrlTreeView_GetText($file_list, $nMsg[0]), "Chapters") Then
++							_GUICtrlTreeView_SetChecked($file_list, $nMsg[0], False)
++							ContinueLoop
++						EndIf
++						$state = _GUICtrlTreeView_GetChecked($file_list, $nMsg[0])
++						_SQLite_QuerySingleRow($db, "select selected from child_handles where item_handle='" & $nMsg[0] & "';", $query)
++						Select
++							Case $state = True And $query[0] = "True"
++								ContinueLoop
++							Case $state = False And $query[0] = "False"
++								ContinueLoop
++							Case $state = False And $query[0] = ""
++								ContinueLoop
++						EndSelect
++						_SQLite_Exec($db, "update child_handles set selected='" & $state & "' where handle='" & $nMsg_handle & "';")
++						__Sync_Go_Button()
++						ContinueLoop
++					EndIf
+ 				EndIf
+-				$check_selected = 0
+ 			EndIf
+ 	EndSwitch
+ WEnd

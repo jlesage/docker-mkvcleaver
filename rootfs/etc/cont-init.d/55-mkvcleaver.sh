@@ -14,7 +14,7 @@ done
 
 # Wine requires the WINEPREFIX directory to be owned by the user running the
 # Windows app.
-chown $USER_ID:$GROUP_ID "$WINEPREFIX"
+chown "$USER_ID:$GROUP_ID" "$WINEPREFIX"
 
 # Enable CJK font in Wine if needed.
 if is-bool-val-true "${ENABLE_CJK_FONT:-0}"; then

@@ -1,0 +1,16 @@
+--- "a/64 bit/Portable/MKVcleaver.au3"	2026-07-17 03:18:50.340262014 +0000
++++ "b/64 bit/Portable/MKVcleaver.au3"	2026-07-17 03:19:02.314405092 +0000
+@@ -150,7 +150,12 @@
+ 	Exit
+ EndIf
+ 
+-$version = FileGetVersion(@AutoItExe)
++If @Compiled Then
++	$version = FileGetVersion(@AutoItExe)
++Else
++	; Running from source: use product version (AutoItExe is the interpreter).
++	$version = "0.8.0.2"
++EndIf
+ $bits = " - 64 bit"
+ 
+ If _Singleton("mkvcleaver", 1) = 0 Then
