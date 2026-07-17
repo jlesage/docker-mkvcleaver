@@ -7,7 +7,7 @@ set -u # Treat unset variables as an error.
 [ -f /config/custom.ini ] || cp /defaults/custom.ini /config/
 
 # Copy registry files.
-for F in user.reg system.reg; do
+for F in userdef.reg user.reg system.reg; do
     cp /defaults/"$F" /tmp/
     chown "$USER_ID:$GROUP_ID" /tmp/"$F"
 done

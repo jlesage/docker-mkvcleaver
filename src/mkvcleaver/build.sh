@@ -103,7 +103,7 @@ rm -f "$WINEPREFIX"/winetricks.log
 
 # Persist Wine registry defaults outside the container.
 mkdir /defaults
-for F in user.reg system.reg; do
+for F in userdef.reg user.reg system.reg; do
     mv /opt/mkvcleaver/"$F" /defaults/
     ln -s /tmp/"$F" /opt/mkvcleaver/"$F"
 done
