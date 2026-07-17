@@ -108,6 +108,12 @@ for F in userdef.reg user.reg system.reg; do
     ln -s /tmp/"$F" /opt/mkvcleaver/"$F"
 done
 
+# Create symlink for the temporary directories.
+rm -r "$WINEPREFIX"/drive_c/users/app/Temp
+rm -r "$WINEPREFIX"/drive_c/windows/temp
+ln -s /tmp "$WINEPREFIX"/drive_c/users/app/Temp
+ln -s /tmp "$WINEPREFIX"/drive_c/windows/temp
+
 # We are done, change ownership of the Wine prefix.
 chown -R root:root "$WINEPREFIX"
 
