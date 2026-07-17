@@ -126,6 +126,7 @@ PATCHES="
     run-from-source-version-string.patch
     about-dialog-images-from-source.patch
     working-dir.patch
+    fix-log-color.patch
 "
 for PATCH in $PATCHES; do
     echo "Applying $PATCH..."
