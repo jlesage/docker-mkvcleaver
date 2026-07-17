@@ -101,11 +101,12 @@ su-exec app wineserver -w
 # Cleanup log file created by Winetricks.
 rm -f "$WINEPREFIX"/winetricks.log
 
-# Persist Wine registry defaults outside the container.
+# Persist Wine registry defaults outside the container. At runtime, cont-init
+# installs these into a user-owned WINEPREFIX under /tmp (the image template
+# stays root-owned so the container can run with a read-only root filesystem).
 mkdir /defaults
 for F in userdef.reg user.reg system.reg; do
     mv /opt/mkvcleaver/"$F" /defaults/
-    ln -s /tmp/"$F" /opt/mkvcleaver/"$F"
 done
 
 # Create symlink for the temporary directories.
