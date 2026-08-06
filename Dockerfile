@@ -47,7 +47,7 @@ RUN /build/build.sh \
         "$AUTOIT_URL"
 
 # Pull base image.
-FROM jlesage/baseimage-gui:alpine-3.18-v4.12.6
+FROM jlesage/baseimage-gui:alpine-3.18-v4.13.0
 
 ARG MKVCLEAVER_VERSION
 ARG DOCKER_IMAGE_VERSION
