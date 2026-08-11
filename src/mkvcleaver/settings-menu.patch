@@ -1,0 +1,94 @@
+# Docker: remove Settings items that do not apply in a container:
+# - Shutdown PC (would target the container/Wine env, not a real host)
+# - Updates Check (container image updates are managed outside the app)
+#
+--- "a/64 bit/Portable/GUI.au3"
++++ "b/64 bit/Portable/GUI.au3"
+@@ -39,10 +39,6 @@
+ Local $resize_on = GUICtrlCreateMenuItem("On", $resize_menu, 0, 1)
+ Local $resize_off = GUICtrlCreateMenuItem("Off", $resize_menu, 1, 1)
+ GUICtrlSetState($resize_off, $GUI_CHECKED)
+-Local $sd_menu = GUICtrlCreateMenu("Shutdown PC", $menu, 4)
+-Local $sd_off = GUICtrlCreateMenuItem("Off", $sd_menu, 0, 1)
+-Local $sd_once = GUICtrlCreateMenuItem("Shutdown Just This Time", $sd_menu, 1, 1)
+-Local $sd_on = GUICtrlCreateMenuItem("Shutdown Every Time", $sd_menu, 2, 1)
+ Local $chapter_opts = GUICtrlCreateMenu("Chapters", $menu, 5)
+ Local $chapters_simple = GUICtrlCreateMenuItem("Simple Chapters", $chapter_opts, 1, 1)
+ Local $chapters_xml = GUICtrlCreateMenuItem("XML Chapters", $chapter_opts, 2, 1)
+@@ -69,9 +65,6 @@
+ 		GUICtrlSetState($vfr_full, $GUI_CHECKED)
+ 		Local $vfr_mode = "Full"
+ EndSwitch
+-Local $update_options = GUICtrlCreateMenu("Updates Check", $menu, 6)
+-Local $update_check = GUICtrlCreateMenuItem("Check for Updates", $update_options, 1, 1)
+-Local $update_not_check = GUICtrlCreateMenuItem("Do Not Check for Updates", $update_options, 2, 1)
+ Local $log_settings = GUICtrlCreateMenuItem("Log Settings", $menu, 7)
+ Local $sendtomenu = 1000000 ;random high number
+ Local $send_to = 1000000 ;random high number
+@@ -98,13 +91,8 @@
+ 	GUICtrlSetState($session_not_save, $GUI_CHECKED)
+ 	Local $session_saver = 0
+ EndIf
+-If IniRead($ini_file, "Updates", "Auto", 1) = 1 Then
+-	GUICtrlSetState($update_check, $GUI_CHECKED)
+-	Local $update_me = "1"
+-Else
+-	GUICtrlSetState($update_not_check, $GUI_CHECKED)
+-	Local $update_me = "0"
+-EndIf
++; Docker: no host updates; keep auto-check disabled.
++Local $update_me = "0"
+ 
+ If $update_me = 1 Then
+ 	If @Compiled Then
+@@ -219,15 +207,8 @@
+ GUICtrlSetResizing($cntoavi, $GUI_DOCKAUTO)
+ GUICtrlSetResizing($fn_custom, $GUI_DOCKAUTO)
+ 
+-Local $sd = IniRead($ini_file, "Shutdown Menu", "shutdown", 0)
+-Switch $sd
+-	Case 0
+-		GUICtrlSetState($sd_off, $GUI_CHECKED)
+-	Case 1
+-		GUICtrlSetState($sd_once, $GUI_CHECKED)
+-	Case 2
+-		GUICtrlSetState($sd_on, $GUI_CHECKED)
+-EndSwitch
++; Docker: never shut down the host/PC.
++Local $sd = 0
+ Local $maximize = IniRead($ini_file, "GUI", "maximized", 0)
+ Local $resize = IniRead($ini_file, "GUI", "resize", 0)
+ If $resize = 1 And $maximize = 1 Then
+--- "a/64 bit/Portable/While_Loop1.au3"
++++ "b/64 bit/Portable/While_Loop1.au3"
+@@ -381,15 +381,6 @@
+ 		Case $resize_off
+ 			$resize_bit = 0
+ 			GUICtrlSetState($resize_off, $GUI_CHECKED)
+-		Case $sd_off
+-			$sd = 0
+-			IniWrite($ini_file, "Shutdown Menu", "shutdown", 0)
+-		Case $sd_once
+-			$sd = 1
+-			IniWrite($ini_file, "Shutdown Menu", "shutdown", 1)
+-		Case $sd_on
+-			$sd = 2
+-			IniWrite($ini_file, "Shutdown Menu", "shutdown", 2)
+ 		Case $vfr_quick
+ 			$vfr_detect = 1
+ 			GUICtrlSetState($vfr_quick, $GUI_CHECKED)
+@@ -412,14 +403,6 @@
+ 			Local $chapters_switch = "-s"
+ 			GUICtrlSetState($chapters_simple, $GUI_CHECKED)
+ 			IniWrite($ini_file, "Files", "chapters_s", 1)
+-		Case $update_check
+-			$update_me = "1"
+-			GUICtrlSetState($update_check, $GUI_CHECKED)
+-			IniWrite($ini_file, "Updates", "Auto", "1")
+-		Case $update_not_check
+-			$update_me = "0"
+-			GUICtrlSetState($update_not_check, $GUI_CHECKED)
+-			IniWrite($ini_file, "Updates", "Auto", "0")
+ 		Case $fn_custom
+ 			GUICtrlSetState($file_list, $GUI_NODROPACCEPTED)
+ 			_Custom_FileName()
