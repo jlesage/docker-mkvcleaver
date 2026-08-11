@@ -15,6 +15,9 @@ MEDIAINFO_URL="${3:-}"
 MKVCLEAVER_SOURCE_URL="${4:-}"
 AUTOIT_URL="${5:-}"
 
+# Same-site Referer required by blogs.sapib.ca hotlink protection.
+MKVCLEAVER_REFERER="https://blogs.sapib.ca/apps/mkvcleaver/mkvcleaver-downloads/"
+
 if [ -z "$MKVCLEAVER_URL" ]; then
     log "ERROR: MKVCleaver URL missing."
     exit 1
@@ -124,7 +127,7 @@ chown -R root:root "$WINEPREFIX"
 
 log "Downloading MKVCleaver source..."
 mkdir /tmp/mkvcleaver-source
-curl -# -L -f "$MKVCLEAVER_SOURCE_URL" | bsdtar -xv --strip 1 -C /tmp/mkvcleaver-source
+curl -# -L -f -e "$MKVCLEAVER_REFERER" "$MKVCLEAVER_SOURCE_URL" | bsdtar -xv --strip 1 -C /tmp/mkvcleaver-source
 
 log "Patching MKVCleaver source..."
 PATCHES="
@@ -149,7 +152,7 @@ cp -av /tmp/mkvcleaver-source /opt/mkvcleaver/source
 #
 
 log "Downloading MKVCleaver..."
-curl -# -L -f -o /tmp/MKVCleaver_portable.exe "$MKVCLEAVER_URL"
+curl -# -L -f -e "$MKVCLEAVER_REFERER" -o /tmp/MKVCleaver_portable.exe "$MKVCLEAVER_URL"
 
 log "Installing MKVCleaver third-party dependencies..."
 
